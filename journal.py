@@ -1,34 +1,34 @@
 import datetime
 import os
 
-from utilities import get_today
+from utilities import get_now, get_today
 
+# create the directory if it doesn't exist
+os.makedirs(f'./logs/{get_today()}', exist_ok=True)
 
 def get_last_journal_date():
-    journal_files = sorted([f for f in os.listdir() if f.endswith('.journal')], key=os.path.getmtime)
+    journal_files = sorted([f for f in os.listdir(f'./logs/{get_today()}') if f.endswith('.journal')], key=lambda f: os.path.getmtime(f'./logs/{get_today()}/{f}'))
     if journal_files:
         most_recent_file = journal_files[-1]
-        return datetime.datetime.fromtimestamp(os.path.getmtime(most_recent_file))
+        return datetime.datetime.fromtimestamp(os.path.getmtime(f'./logs/{get_today()}/{most_recent_file}'))
     else:
         return None
 
-
 def create_journal_entry():
     try:
-        filename = f"{get_today()}.journal"
-        with open(filename, 'w') as file:
+        filename = f"{get_now()}.journal"
+        with open(f'./logs/{get_today()}/' + filename, 'w') as file:
             file.write(f"{datetime.datetime.now().ctime()}\n\n")
             response = input("Write your journal entry: ")
             file.write(f"{response}\n")
     except IOError as e:
         print(f"An error occurred while writing to the file: {e}")
 
-
 def guided_journal_entry():
     try:
         last_journal_date = get_last_journal_date()
-        filename = f"{get_today()}.journal"
-        with open(filename, 'w') as file:
+        filename = f"{get_now()}.journal"
+        with open(f'./logs/{get_today()}/' + filename, 'w') as file:
             file.write(f"{datetime.datetime.now().ctime()}\n\n")
             if last_journal_date is not None:
                 hours_since_last_journal = (datetime.datetime.now() - last_journal_date).total_seconds() / 3600
@@ -53,11 +53,9 @@ def guided_journal_entry():
     except IOError as e:
         print(f"An error occurred while writing to the file: {e}")
 
-
-
 def read_journal_entry():
     try:
-        journals = [file for file in os.listdir() if file.endswith('.journal')]
+        journals = [file for file in os.listdir(f'./logs/{get_today()}') if file.endswith('.journal')]
         assert journals, "No journal entries found."
         for i, journal in enumerate(journals):
             print(f"{i+1}. {journal}")
@@ -67,7 +65,7 @@ def read_journal_entry():
                 break
             else:
                 print("Invalid choice. Please choose a valid number.")
-        with open(journals[choice], 'r') as file:
+        with open(f'./logs/{get_today()}/' + journals[choice], 'r') as file:
             print(file.read())
     except IOError as e:
         print(f"An error occurred while reading the file: {e}")

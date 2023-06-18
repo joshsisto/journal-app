@@ -3,15 +3,17 @@ import os
 
 from utilities import get_today
 
+# create the directory if it doesn't exist
+os.makedirs(f'./logs/{get_today()}', exist_ok=True)
+
 def manage_todo_list():
     try:
-        today = get_today().split('T')[0]
-        todofile = f"{today}.todo"
+        todofile = f"./logs/{get_today()}/{get_today()}.todo"
 
-        todo_files = sorted([f for f in os.listdir() if f.endswith('.todo')])
+        todo_files = sorted([f for f in os.listdir(f'./logs/{get_today()}') if f.endswith('.todo')])
 
         if not os.path.exists(todofile) and todo_files:
-            most_recent_file = todo_files[-1]
+            most_recent_file = f'./logs/{get_today()}/{todo_files[-1]}'
             with open(most_recent_file, 'r') as file:
                 tasks = file.readlines()
             uncompleted_tasks = [task for task in tasks if not task.startswith('~~')]
