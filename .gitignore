@@ -1,5 +1,5 @@
-.journal
-.todo
-.stats
+*.journal
+*.todo
+*.stats
 .DS_Store
 __pycache__
