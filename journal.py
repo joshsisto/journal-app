@@ -7,12 +7,18 @@ from utilities import get_now, get_today
 os.makedirs(f'./logs/{get_today()}', exist_ok=True)
 
 def get_last_journal_date():
-    journal_files = sorted([f for f in os.listdir(f'./logs/{get_today()}') if f.endswith('.journal')], key=lambda f: os.path.getmtime(f'./logs/{get_today()}/{f}'))
+    journal_files = []
+    for root, dirs, files in os.walk('./logs'):  # Corrected this line
+        for file in files:
+            if file.endswith('.journal'):
+                journal_files.append(os.path.join(root, file))
+    journal_files = sorted(journal_files, key=os.path.getmtime)
     if journal_files:
         most_recent_file = journal_files[-1]
-        return datetime.datetime.fromtimestamp(os.path.getmtime(f'./logs/{get_today()}/{most_recent_file}'))
+        return datetime.datetime.fromtimestamp(os.path.getmtime(most_recent_file))
     else:
         return None
+
 
 def create_journal_entry():
     try:
