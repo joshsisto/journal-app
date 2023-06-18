@@ -9,6 +9,7 @@ def main():
         if choice == 1:
             create_journal_entry()
         elif choice == 2:
+            create_stats_entry()
             guided_journal_entry()
         elif choice == 3:
             read_journal_entry()

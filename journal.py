@@ -5,7 +5,7 @@ from utilities import get_today
 
 
 def get_last_journal_date():
-    journal_files = sorted([f for f in os.listdir() if f.endswith('.txt')], key=os.path.getmtime)
+    journal_files = sorted([f for f in os.listdir() if f.endswith('.journal')], key=os.path.getmtime)
     if journal_files:
         most_recent_file = journal_files[-1]
         return datetime.datetime.fromtimestamp(os.path.getmtime(most_recent_file))
@@ -15,7 +15,7 @@ def get_last_journal_date():
 
 def create_journal_entry():
     try:
-        filename = f"{get_today()}.txt"
+        filename = f"{get_today()}.journal"
         with open(filename, 'w') as file:
             file.write(f"{datetime.datetime.now().ctime()}\n\n")
             response = input("Write your journal entry: ")
@@ -27,7 +27,7 @@ def create_journal_entry():
 def guided_journal_entry():
     try:
         last_journal_date = get_last_journal_date()
-        filename = f"{get_today()}.txt"
+        filename = f"{get_today()}.journal"
         with open(filename, 'w') as file:
             file.write(f"{datetime.datetime.now().ctime()}\n\n")
             if last_journal_date is not None:
@@ -57,7 +57,7 @@ def guided_journal_entry():
 
 def read_journal_entry():
     try:
-        journals = [file for file in os.listdir() if file.endswith('.txt')]
+        journals = [file for file in os.listdir() if file.endswith('.journal')]
         assert journals, "No journal entries found."
         for i, journal in enumerate(journals):
             print(f"{i+1}. {journal}")
