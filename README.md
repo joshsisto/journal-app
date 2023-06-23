@@ -26,3 +26,5 @@ This file presents a menu to the user and calls the appropriate functions based 
 2. Create a journal entry
 3. Create a guided journal entry
 4. Use the chatbot
+
+### Showing Erik how Git works
