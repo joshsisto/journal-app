@@ -34,6 +34,7 @@ def guided_journal_entry():
     try:
         last_journal_date = get_last_journal_date()
         filename = f"{get_now()}.journal"
+        goals_asked_file = f'./logs/{get_today()}/goals_asked.goals'
         with open(f'./logs/{get_today()}/' + filename, 'w') as file:
             file.write(f"{datetime.datetime.now().ctime()}\n\n")
             if last_journal_date is not None:
@@ -48,16 +49,25 @@ def guided_journal_entry():
 
             questions = ["How are you feeling?", "Where are you writing this?", "Tell me about your day", "Anything else you would like to discuss?"]
 
-            if datetime.datetime.now().hour < 18:  # If it's before 6PM, ask about today's goals
-                questions.append("What are your goals for the day?")
+            if datetime.datetime.now().hour < 18 and not os.path.exists(goals_asked_file):  # If it's before 6PM and goals question has not been asked today
+                goals_question = "What are your goals for the day?"
+                questions.append(goals_question)
 
             for i, question in enumerate(questions, 1):
                 print(f"{i}. {question}")
                 response = input("Your response: ")
                 file.write(f"{question}\n")
                 file.write(f"Response: {response}\n\n")
+
+                # If the goals question was asked, create the goals_asked.goals file and write the response
+                if question == "What are your goals for the day?":
+                    with open(goals_asked_file, 'w') as ga_file:
+                        ga_file.write(f"Goals for the day: {response}")
+
     except IOError as e:
         print(f"An error occurred while writing to the file: {e}")
+
+
 
 def read_journal_entry():
     try:
