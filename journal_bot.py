@@ -21,11 +21,16 @@ def get_all_conversations():
         print(f"\nLoading conversation from file: {file}")
 
         # Extract timestamp from filename
-        timestamp = os.path.basename(file).split('T')[0] + ' ' + os.path.basename(file).split('T')[1].split('.')[0]
-        try:
-            timestamp = datetime.strptime(timestamp, "%Y-%m-%d_%H-%M-%S").strftime("%Y-%m-%d %H:%M:%S")
-        except ValueError:
-            timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d %H:%M:%S")
+        filename = os.path.basename(file)
+        if 'T' in filename:
+            timestamp = filename.split('T')[0] + ' ' + filename.split('T')[1].split('.')[0]
+            try:
+                timestamp = datetime.strptime(timestamp, "%Y-%m-%d_%H-%M-%S").strftime("%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            print(f"Unexpected filename format: {filename}. Expected a 'T' character. Skipping this file.")
+            continue
 
         with open(file, 'r') as f:
             content = f.read()
@@ -40,6 +45,7 @@ def get_all_conversations():
         messages.append({"role": "system", "content": assistant_prompt_previous})
         all_messages.extend(messages)
     return all_messages
+
 
 
 def generate_response_and_log(f, messages):
@@ -57,6 +63,7 @@ def generate_response_and_log(f, messages):
         presence_penalty=0.6
     )
     assistant_message = response.choices[0].message['content']
+    print(f'assistand message: {assistant_message}')
     messages.append({"role": "assistant", "content": assistant_message})
     f.write("Assistant: " + assistant_message + "\n\n")
     print(bold(blue("Assistant: ")), blue(assistant_message))
