@@ -44,7 +44,12 @@ def get_all_conversations():
         #append the prompt accounting for the previous conversations
         messages.append({"role": "system", "content": assistant_prompt_previous})
         all_messages.extend(messages)
+
+    # Append the original prompt after all previous conversations
+    all_messages.append({"role": "system", "content": assistant_prompt})
+    
     return all_messages
+
 
 
 
@@ -54,7 +59,7 @@ def generate_response_and_log(f, messages):
         print(f"{message['role'].capitalize()}: {message['content']}")
         
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-0613",
+        model="gpt-3.5-turbo-16k-0613",
         messages=messages,
         temperature=0.8,
         max_tokens=500,
@@ -63,10 +68,10 @@ def generate_response_and_log(f, messages):
         presence_penalty=0.6
     )
     assistant_message = response.choices[0].message['content']
-    print(f'assistand message: {assistant_message}')
     messages.append({"role": "assistant", "content": assistant_message})
     f.write("Assistant: " + assistant_message + "\n\n")
-    print(bold(blue("Assistant: ")), blue(assistant_message))
+    print("Assistant: ", blue(assistant_message))  # Print "Assistant:" in the default color and the message in blue
+
 
 
 

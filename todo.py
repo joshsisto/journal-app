@@ -10,10 +10,14 @@ def manage_todo_list():
     try:
         todofile = f"./logs/{get_today()}/{get_today()}.todo"
 
-        todo_files = sorted([f for f in os.listdir(f'./logs/{get_today()}') if f.endswith('.todo')])
+        all_todo_files = []
+        for root, dirs, files in os.walk('./logs'):
+            all_todo_files.extend([os.path.join(root, f) for f in files if f.endswith('.todo')])
 
-        if not os.path.exists(todofile) and todo_files:
-            most_recent_file = f'./logs/{get_today()}/{todo_files[-1]}'
+        all_todo_files = sorted(all_todo_files)
+
+        if not os.path.exists(todofile) and all_todo_files:
+            most_recent_file = all_todo_files[-1]
             with open(most_recent_file, 'r') as file:
                 tasks = file.readlines()
             uncompleted_tasks = [task for task in tasks if not task.startswith('~~')]
