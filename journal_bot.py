@@ -1,88 +1,33 @@
 import openai
 import os
-import glob
 from datetime import datetime
 
 from utilities import get_today, get_now, red, blue, bold 
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
-with open('./prompts/assistant_prompt.txt', 'r') as f:
-    assistant_prompt = f.read()
+def get_prompt_and_conversation():
+    # Load prompt
+    with open('./prompts/assistant_prompt.txt', 'r') as f:
+        assistant_prompt = f.read()
 
-with open('./prompts/assistant_prompt_previous.txt', 'r') as f:
-    assistant_prompt_previous = f.read()
+    # Load .all file
+    all_file_path = f"./logs/{get_today()}/{get_today()}.all"
+    with open(all_file_path, 'r') as f:
+        all_conversation = f.read()
 
-
-def get_all_conversations():
-    list_of_files = sorted(glob.glob('./logs/*/*.journal'), key=os.path.getctime)
-    all_messages = []
-    for file in list_of_files:
-        print(f"\nLoading conversation from file: {file}")
-
-        # Extract timestamp from filename
-        filename = os.path.basename(file)
-        if 'T' in filename:
-            timestamp = filename.split('T')[0] + ' ' + filename.split('T')[1].split('.')[0]
-            try:
-                timestamp = datetime.strptime(timestamp, "%Y-%m-%d_%H-%M-%S").strftime("%Y-%m-%d %H:%M:%S")
-            except ValueError:
-                timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d %H:%M:%S")
-        else:
-            print(f"Unexpected filename format: {filename}. Expected a 'T' character. Skipping this file.")
-            continue
-
-        with open(file, 'r') as f:
-            content = f.read()
-        messages = [
-            {"role": "system", "content": f"This is an uploaded journal entry from {timestamp}.\n\n"},
-            {"role": "user", "content": content},
-        ]
-        print(f"Adding the following messages for file {file}:")
-        for message in messages:
-            print(f"{message['role'].capitalize()}: {message['content']}")
-        #append the prompt accounting for the previous conversations
-        messages.append({"role": "system", "content": assistant_prompt_previous})
-        all_messages.extend(messages)
-
-    # Append the original prompt after all previous conversations
-    all_messages.append({"role": "system", "content": assistant_prompt})
-    
-    return all_messages
-
-
-
-
-def generate_response_and_log(f, messages):
-    print("\nSending the following messages to the assistant:")
-    for message in messages:
-        print(f"{message['role'].capitalize()}: {message['content']}")
-        
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k-0613",
-        messages=messages,
-        temperature=0.8,
-        max_tokens=500,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0.6
-    )
-    assistant_message = response.choices[0].message['content']
-    messages.append({"role": "assistant", "content": assistant_message})
-    f.write("Assistant: " + assistant_message + "\n\n")
-    print("Assistant: ", blue(assistant_message))  # Print "Assistant:" in the default color and the message in blue
-
-
-
+    # Concatenate the prompt and the conversation
+    conversation = assistant_prompt + "\n" + all_conversation
+    return conversation
 
 def chatbot():
-    messages = get_all_conversations()
+    # Get the combined prompt and conversation
+    conversation = get_prompt_and_conversation()
 
-    if not messages:
-        messages = [
-            {"role": "system", "content": assistant_prompt},
-            # {"role": "user", "content": "Let me know you are ready to go."},
-        ]
+    # Create an initial system message with the conversation
+    messages = [
+        {"role": "system", "content": conversation},
+    ]
 
     timestamp_start = datetime.now()
     timestamp_str = timestamp_start.strftime("%Y-%m-%d_%H-%M-%S")
@@ -92,8 +37,20 @@ def chatbot():
     with open(filename, 'w') as f:
         f.write(f"Conversation started at: {timestamp_str}\n\n")
 
-        if messages:
-            generate_response_and_log(f, messages)
+        # Send the messages to the assistant and get the response
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo-16k-0613",
+            messages=messages,
+            temperature=0.8,
+            max_tokens=500,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0.6
+        )
+        assistant_message = response.choices[0].message['content']
+        messages.append({"role": "assistant", "content": assistant_message})
+        f.write("Assistant: " + assistant_message + "\n\n")
+        print("Assistant: ", blue(assistant_message))
 
         while True:
             user_message = input(bold(red("You: ")))
@@ -108,4 +65,17 @@ def chatbot():
             messages.append({"role": "user", "content": user_message})
             f.write("You: " + user_message + "\n\n")
 
-            generate_response_and_log(f, messages)
+            # Send the messages to the assistant and get the response
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo-16k-0613",
+                messages=messages,
+                temperature=0.8,
+                max_tokens=500,
+                top_p=1,
+                frequency_penalty=0,
+                presence_penalty=0.6
+            )
+            assistant_message = response.choices[0].message['content']
+            messages.append({"role": "assistant", "content": assistant_message})
+            f.write("Assistant: " + assistant_message + "\n\n")
+            print("Assistant: ", blue(assistant_message))
