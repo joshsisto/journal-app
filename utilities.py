@@ -23,3 +23,4 @@ def red(text):
     red_start = "\033[31m"
     red_end = "\033[0m"
     return red_start + text + red_end
+

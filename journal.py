@@ -21,17 +21,22 @@ def get_last_journal_date():
 
 def read_journal_entry():
     try:
-        journals = [file for file in os.listdir(f'./logs/{get_today()}') if file.endswith('.all')]  # Changed from '.journal' to '.all'
-        assert journals, "No journal entries found."
-        for i, journal in enumerate(journals):
-            print(f"{i+1}. {journal}")
+        journal_files = []
+        for root, dirs, files in os.walk('./logs'):
+            for file in files:
+                if file.endswith('.all'):
+                    journal_files.append(os.path.join(root, file))
+
+        assert journal_files, "No journal entries found."
+        for i, journal in enumerate(journal_files):
+            print(f"{i+1}. {os.path.basename(journal)}")  # Use os.path.basename to print only the filename
         while True:
             choice = int(input("Select a journal to read: ")) - 1
-            if 0 <= choice < len(journals):
+            if 0 <= choice < len(journal_files):
                 break
             else:
                 print("Invalid choice. Please choose a valid number.")
-        with open(f'./logs/{get_today()}/' + journals[choice], 'r') as file:
+        with open(journal_files[choice], 'r') as file:
             print(file.read())
     except IOError as e:
         print(f"An error occurred while reading the file: {e}")
@@ -85,6 +90,7 @@ def guided_journal_entry():
     except IOError as e:
         print(f"An error occurred while writing to the file: {e}")
 
+
 def consolidate_files():
     try:
         consolidated_filename = f"./logs/{get_today()}/{get_today()}.all"
@@ -108,4 +114,3 @@ def consolidate_files():
                         consolidated_file.write(file.read())
     except IOError as e:
         print(f"An error occurred while writing to the consolidated file: {e}")
-

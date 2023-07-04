@@ -14,13 +14,13 @@ def manage_todo_list():
         for root, dirs, files in os.walk('./logs'):
             all_todo_files.extend([os.path.join(root, f) for f in files if f.endswith('.todo')])
 
-        all_todo_files = sorted(all_todo_files)
+        all_todo_files = sorted(all_todo_files, key=os.path.getmtime)  # Use os.path.getmtime instead of os.path.getctime
 
         if not os.path.exists(todofile) and all_todo_files:
             most_recent_file = all_todo_files[-1]
             with open(most_recent_file, 'r') as file:
                 tasks = file.readlines()
-            uncompleted_tasks = [task for task in tasks if not task.startswith('~~')]
+            uncompleted_tasks = [task for task in tasks if '~~' not in task]  # Check for '~~' anywhere in the task
             with open(todofile, 'w') as file:
                 file.writelines(uncompleted_tasks)
         elif not os.path.exists(todofile):
