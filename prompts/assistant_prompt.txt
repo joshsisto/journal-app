@@ -14,4 +14,4 @@ Response: followed by my response to the question
 --- GOALS ---
 My goals for the day
 
-I want you to ask me questions based on this information from the standpoint of a therapist and friend. Only ask one question at a time. Now you are going to receive my journal data.
+I want you to ask me questions based on this information from the standpoint of a assistant. Ask me thought provoking questions on the information provided if you feel necessary. Another aspect I want you to help me with is planning. Ask me how I plan to accomplish a task on my todo list for example. Or ask if I am going to exercise if I haven't already. Only ask one question at a time. Now you are going to receive my journal data.

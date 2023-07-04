@@ -10,7 +10,7 @@ def get_last_journal_date():
     journal_files = []
     for root, dirs, files in os.walk('./logs'):  # Corrected this line
         for file in files:
-            if file.endswith('.journal'):
+            if file.endswith('.all'):  # Changed from '.journal' to '.all'
                 journal_files.append(os.path.join(root, file))
     journal_files = sorted(journal_files, key=os.path.getmtime)
     if journal_files:
@@ -19,6 +19,24 @@ def get_last_journal_date():
     else:
         return None
 
+def read_journal_entry():
+    try:
+        journals = [file for file in os.listdir(f'./logs/{get_today()}') if file.endswith('.all')]  # Changed from '.journal' to '.all'
+        assert journals, "No journal entries found."
+        for i, journal in enumerate(journals):
+            print(f"{i+1}. {journal}")
+        while True:
+            choice = int(input("Select a journal to read: ")) - 1
+            if 0 <= choice < len(journals):
+                break
+            else:
+                print("Invalid choice. Please choose a valid number.")
+        with open(f'./logs/{get_today()}/' + journals[choice], 'r') as file:
+            print(file.read())
+    except IOError as e:
+        print(f"An error occurred while reading the file: {e}")
+    except AssertionError as e:
+        print(e)
 
 def create_journal_entry():
     try:
@@ -66,28 +84,6 @@ def guided_journal_entry():
 
     except IOError as e:
         print(f"An error occurred while writing to the file: {e}")
-
-
-
-def read_journal_entry():
-    try:
-        journals = [file for file in os.listdir(f'./logs/{get_today()}') if file.endswith('.journal')]
-        assert journals, "No journal entries found."
-        for i, journal in enumerate(journals):
-            print(f"{i+1}. {journal}")
-        while True:
-            choice = int(input("Select a journal to read: ")) - 1
-            if 0 <= choice < len(journals):
-                break
-            else:
-                print("Invalid choice. Please choose a valid number.")
-        with open(f'./logs/{get_today()}/' + journals[choice], 'r') as file:
-            print(file.read())
-    except IOError as e:
-        print(f"An error occurred while reading the file: {e}")
-    except AssertionError as e:
-        print(e)
-
 
 def consolidate_files():
     try:

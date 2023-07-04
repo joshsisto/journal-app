@@ -32,14 +32,14 @@ def chatbot():
     timestamp_start = datetime.now()
     timestamp_str = timestamp_start.strftime("%Y-%m-%d_%H-%M-%S")
 
-    filename = f'./logs/{get_today()}/{timestamp_str}.journal'
+    filename = f'./logs/{get_today()}/{timestamp_str}.chat'
 
     with open(filename, 'w') as f:
         f.write(f"Conversation started at: {timestamp_str}\n\n")
 
         # Send the messages to the assistant and get the response
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo-16k-0613",
+            model="gpt-3.5-turbo-0613",
             messages=messages,
             temperature=0.8,
             max_tokens=500,
@@ -67,7 +67,7 @@ def chatbot():
 
             # Send the messages to the assistant and get the response
             response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo-16k-0613",
+                model="gpt-3.5-turbo-0613",
                 messages=messages,
                 temperature=0.8,
                 max_tokens=500,
