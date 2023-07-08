@@ -62,7 +62,7 @@ def guided_journal_entry():
             file.write(f"{datetime.datetime.now().ctime()}\n\n")
             if last_journal_date is not None:
                 hours_since_last_journal = (datetime.datetime.now() - last_journal_date).total_seconds() / 3600
-                if hours_since_last_journal > 20:
+                if hours_since_last_journal > 24:
                     days_since_last_journal = hours_since_last_journal // 24
                     welcome_back_question = f"Welcome back! It's been {int(days_since_last_journal)} days since you journaled. What's happened since your last entry on {last_journal_date.strftime('%Y-%m-%d')}?"
                     print(welcome_back_question)

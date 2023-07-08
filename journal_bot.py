@@ -39,7 +39,7 @@ def chatbot():
 
         # Send the messages to the assistant and get the response
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo-0613",
+            model="gpt-4",
             messages=messages,
             temperature=0.8,
             max_tokens=500,
@@ -67,7 +67,7 @@ def chatbot():
 
             # Send the messages to the assistant and get the response
             response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo-0613",
+                model="gpt-4",
                 messages=messages,
                 temperature=0.8,
                 max_tokens=500,
