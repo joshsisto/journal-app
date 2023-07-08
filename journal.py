@@ -56,13 +56,29 @@ def create_journal_entry():
 def guided_journal_entry():
     try:
         last_journal_date = get_last_journal_date()
+        print("Last journal date:", last_journal_date)
         filename = f"{get_now()}.journal"
         goals_asked_file = f'./logs/{get_today()}/goals_asked.goals'
         with open(f'./logs/{get_today()}/' + filename, 'w') as file:
             file.write(f"{datetime.datetime.now().ctime()}\n\n")
             if last_journal_date is not None:
                 hours_since_last_journal = (datetime.datetime.now() - last_journal_date).total_seconds() / 3600
-                if hours_since_last_journal > 24:
+
+                # Check if there are any journal entries today
+                today_files = os.listdir(f'./logs/{get_today()}')
+                today_journal_files = [file for file in today_files if file.endswith('.journal')]
+                print("Today's journal files:", today_journal_files)
+
+                # If the current journal entry is the first of the day and the last journal was before 8PM the previous day
+                if len(today_journal_files) == 1 and datetime.datetime(last_journal_date.year, last_journal_date.month, last_journal_date.day) < datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month, datetime.datetime.now().day) and last_journal_date.hour < 20:
+                    print("Condition passed.")
+                    evening_question = f"I see your last journal entry was {last_journal_date.strftime('%Y-%m-%d at %I:%M %p')}. Tell me about the rest of your day or evening."
+                    print(evening_question)
+                    response = input("Your response: ")
+                    file.write(f"Question: {evening_question}\n")
+                    file.write(f"Response: {response}\n\n")
+
+                elif hours_since_last_journal > 24:
                     days_since_last_journal = hours_since_last_journal // 24
                     welcome_back_question = f"Welcome back! It's been {int(days_since_last_journal)} days since you journaled. What's happened since your last entry on {last_journal_date.strftime('%Y-%m-%d')}?"
                     print(welcome_back_question)
