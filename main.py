@@ -13,6 +13,7 @@ def main():
         elif choice == 2:
             create_stats_entry()
             guided_journal_entry()
+            manage_todo_list()
             consolidate_files()
         elif choice == 3:
             read_journal_entry()
