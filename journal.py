@@ -8,16 +8,22 @@ os.makedirs(f'./logs/{get_today()}', exist_ok=True)
 
 def get_last_journal_date():
     journal_files = []
-    for root, dirs, files in os.walk('./logs'):  # Corrected this line
+    for root, dirs, files in os.walk('./logs'):  
         for file in files:
-            if file.endswith('.all'):  # Changed from '.journal' to '.all'
+            if file.endswith('.journal'):
                 journal_files.append(os.path.join(root, file))
-    journal_files = sorted(journal_files, key=os.path.getmtime)
+    
+    # Sort based on the names (timestamps) of the files
+    journal_files = sorted(journal_files)
+    
     if journal_files:
         most_recent_file = journal_files[-1]
-        return datetime.datetime.fromtimestamp(os.path.getmtime(most_recent_file))
+        # Extract the timestamp from the filename and convert it to a datetime object
+        timestamp_str = os.path.basename(most_recent_file).replace('.journal', '').replace('T', ' ')
+        last_modified_time = datetime.datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+        return last_modified_time, most_recent_file
     else:
-        return None
+        return None, None
 
 def read_journal_entry():
     try:
@@ -55,36 +61,50 @@ def create_journal_entry():
 
 def guided_journal_entry():
     try:
-        last_journal_date = get_last_journal_date()
-        print("Last journal date:", last_journal_date)
+        last_journal_date, last_journal_path = get_last_journal_date()
+        # print("Last journal date:", last_journal_date)
+        # print("Last journal path:", last_journal_path)
         filename = f"{get_now()}.journal"
         goals_asked_file = f'./logs/{get_today()}/goals_asked.goals'
         with open(f'./logs/{get_today()}/' + filename, 'w') as file:
             file.write(f"{datetime.datetime.now().ctime()}\n\n")
             if last_journal_date is not None:
                 hours_since_last_journal = (datetime.datetime.now() - last_journal_date).total_seconds() / 3600
+                days_since_last_journal = hours_since_last_journal // 24
+
+                # If there is no journal entry for the previous day or more
+                if days_since_last_journal > 1:
+                    # If there are no entries for more than 4 days
+                    if days_since_last_journal > 4:
+                        welcome_back_question = f"Welcome back! It's been {int(days_since_last_journal)} days since you journaled. What's happened since your last entry on {last_journal_date.strftime('%Y-%m-%d')}?"
+                        print(welcome_back_question)
+                        response = input("Your response: ")
+                        file.write(f"Question: {welcome_back_question}\n")
+                        file.write(f"Response: {response}\n\n")
+                    else:
+                        # Ask about each day that is missing
+                        for i in range(1, int(days_since_last_journal) + 1):
+                            # Convert the string to datetime.date object
+                            today_date = datetime.datetime.strptime(get_today(), '%Y-%m-%d').date()
+                            missed_day_question = f"What did you do on {today_date - datetime.timedelta(days=i)}?"
+                            print(missed_day_question)
+                            response = input("Your response: ")
+                            file.write(f"Question: {missed_day_question}\n")
+                            file.write(f"Response: {response}\n\n")
 
                 # Check if there are any journal entries today
                 today_files = os.listdir(f'./logs/{get_today()}')
                 today_journal_files = [file for file in today_files if file.endswith('.journal')]
-                print("Today's journal files:", today_journal_files)
+                # print("Today's journal files:", today_journal_files)
 
                 # If the current journal entry is the first of the day and the last journal was before 8PM the previous day
-                if len(today_journal_files) == 1 and datetime.datetime(last_journal_date.year, last_journal_date.month, last_journal_date.day) < datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month, datetime.datetime.now().day) and last_journal_date.hour < 20:
+                if days_since_last_journal == 1 and last_journal_date.hour < 20:
                     print("Condition passed.")
                     evening_question = f"I see your last journal entry was {last_journal_date.strftime('%Y-%m-%d at %I:%M %p')}. Tell me about the rest of your day or evening."
                     print(evening_question)
                     response = input("Your response: ")
                     file.write(f"Question: {evening_question}\n")
-                    file.write(f"Response: {response}\n\n")
-
-                elif hours_since_last_journal > 24:
-                    days_since_last_journal = hours_since_last_journal // 24
-                    welcome_back_question = f"Welcome back! It's been {int(days_since_last_journal)} days since you journaled. What's happened since your last entry on {last_journal_date.strftime('%Y-%m-%d')}?"
-                    print(welcome_back_question)
-                    response = input("Your response: ")
-                    file.write(f"Question: {welcome_back_question}\n")
-                    file.write(f"Response: {response}\n\n")
+                    file.write(f"Response: {response}\n\n")                
 
             questions = ["How are you feeling?", "Where are you writing this?", "Tell me about your day", "Anything else you would like to discuss?"]
 
@@ -105,7 +125,6 @@ def guided_journal_entry():
 
     except IOError as e:
         print(f"An error occurred while writing to the file: {e}")
-
 
 def consolidate_files():
     try:
