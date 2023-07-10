@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Journal Entry</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <form id="myForm">
+        <label for="response">Write Journal Entry</label><br>
+        <textarea id="response" name="response" wrap="soft" style="width: 100%; height: 150px;"></textarea><br>
+        <input type="submit" value="Submit">
+    </form>
+    <div id="result"></div>
+
+    <form action="/" method="POST">
+        <label for="next_question">Question:</label><br>
+        <input type="text" id="next_question" name="next_question"><br>
+        <input type="submit" value="Submit">
+    </form>
+    
+    
+
+    <script>
+    $("#myForm").submit(function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '/post',
+            contentType: "application/json",
+            data: JSON.stringify({response: $('#response').val()}),
+            dataType: "json",
+            success: function(data) {
+                $('#result').text(data.result);
+            }
+        });
+    });
+    </script>
+</body>
+</html>
