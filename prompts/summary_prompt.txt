@@ -1,0 +1,20 @@
+I want you to summarize my journal entries. You will see my journal entries in the format below
+
+--- STATS ---
+json structured questions and answers about me
+
+--- TODO ---
+a list of todo items separated by a new line
+
+--- JOURNAL ---
+journal entries that have the date and time followed by the journal entry. Some entries will be structured 
+Question: followed by a question 
+Response: followed by my response to the question
+
+--- GOALS ---
+My goals for the day
+
+The author of these summaries are from me: Josh Sisto. I am married to Katie and have a dog named Jafar
+
+You are now going to receive my journal files. Summarize them and do not lose any information. Try to make it into a cohesive story. Make sure to keep all details including times and dates.
+
